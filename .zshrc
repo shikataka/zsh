@@ -1,19 +1,38 @@
 # 文字コードの設定
 export LANG=ja_JP.UTF-8
 
-# パスの設定
-PATH=/usr/local/bin:$PATH:/Users/shikataka/bin/sh:/opt/local/bin
+export SVN_EDITOR="vi"
+
+# AWS environment
+export AWS_AUTO_SCALING_HOME=/Users/shikataka/aws/AutoScaling
+export AWS_CLOUDWATCH_HOME=$HOME/aws/CloudWatch
+export AWS_CREDENTIAL_FILE=$HOME/aws/credential-file
+export SERVICE_JVM_ARGS="-Dhttp.proxyHost=http://133.242.17.38 -Dhttp.proxyPort=9191" 
+
+export JAVA_HOME=/Library/Java/Home
+
+export LDFLAGS=-L/usr/local/opt/sqlite/lib
+export CPPFLAGS=-I/usr/local/opt/sqlite/include
+export NDK_ROOT=/Users/shikataka/Applications/android-ndk-r9
+export ANDROID_HOME=/Applications/sdk
+
+PATH=$(brew --prefix josegonzalez/php/php54)/bin:/usr/local/bin:/usr/local/sbin:/Users/shikataka/bin/sh:/opt/local/bin:/opt/local/sbin:/Applications/sdk/platform-tools:/Users/shikataka/Applications/android-ndk-r9:/Users/shikataka/perl5/bin/:${AWS_AUTO_SCALING_HOME}/bin:${AWS_CLOUDWATCH_HOME}/bin:/usr/local/Cellar/ruby/2.0.0-p247/bin:/Applications/sdk/tools:$PATH
 export MANPATH=/usr/local/share/man:/usr/local/man:/usr/share/man
+#export PHP_HOME=$HOME/local/php/versions
+#source $(brew --prefix php-version)/php-version.sh && php-version 5.4.12 >/dev/null
 
 # 関数
 find-grep() {
 	find . -type f -print | xargs grep -n --binary-files=without-match $@
 }
 
+source ~/.zshrc.antigen
+
 # エイリアスの設定
 alias ls='ls -G'
 alias ll='ls -ltr'
 alias gd='dirs -v; echo -n "select number: "; read newdir; cd +"$newdir"'
+alias cp='cp -r -p'
 
 # プロンプトの設定 
 PROMPT='%~# '
@@ -110,8 +129,8 @@ setopt auto_cd
 setopt no_flow_control
 
 # rvm
-PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
-[[ -s "/Users/shikataka/.rvm/scripts/rvm" ]] && source "/Users/shikataka/.rvm/scripts/rvm"  # This loads RVM into a shell session.
+#PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
+#[[ -s "/Users/shikataka/.rvm/scripts/rvm" ]] && source "/Users/shikataka/.rvm/scripts/rvm"  # This loads RVM into a shell session.
 
 #
 # Show branch name in Zsh's right prompt
@@ -156,9 +175,34 @@ RPROMPT='[`rprompt-git-current-branch`%~]'
 alias gst='git status -s && git stash list'
 alias gch='git cherry -v'
 alias glgg='git logg'
-
+alias git='nocorrect git'
 # gcc
-export CC=/usr/bin/gcc-4.2
-if [ -f ~/.bashrc ] ; then
-	. ~/.bashrc
-fi
+#export CC=/usr/bin/gcc-4.2
+#if [ -f ~/.bashrc ] ; then
+#	. ~/.bashrc
+#fi
+PROMPT='@%m %c# '
+
+function command_not_found_handler() {
+	echo "(´・ω・｀)> $0 ってコマンド見つからないよ"
+}
+
+function do_enter() {
+		if [ -n "$BUFFER" ]; then
+	        zle accept-line
+	        return 0
+	    fi
+	    echo
+	    ls
+	    # ↓おすすめ
+	    # ls_abbrev
+	    if [ "$(git rev-parse --is-inside-work-tree 2> /dev/null)" = 'true' ]; then
+	        echo
+	        echo -e "\e[0;33m--- git status ---\e[0m"
+	        git status -sb
+	    fi
+	    zle reset-prompt
+	    return 0
+}
+zle -N do_enter
+bindkey '^m' do_enter
