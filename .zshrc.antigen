@@ -1,0 +1,15 @@
+source ~/antigen/antigen.zsh
+
+antigen-lib
+
+antigen-bundle git
+antigen-bundle autojump
+antigen-bundle heroku
+antigen-bundle ruby
+antigen-bundle rails
+
+# antigen-bundle zsh-users/zsj-syntax-highlighting
+
+# antigen-theme robbyussell
+
+antigen-apply
